@@ -13,11 +13,8 @@ def output_file(filename, data):
 	file.close()
 
 def main():
-	data_eng = process_image("test_eng.png", "eng")
 	data_spa = process_image("test_spa.png", "spa")
-	print_data(data_eng)
 	print_data(data_spa)
-	output_file("eng.txt", data_eng)
 	output_file("spa.txt", data_spa)
 
 if  __name__ == '__main__':
