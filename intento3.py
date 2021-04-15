@@ -21,11 +21,10 @@ class HackerNewsSearchTest:
         self.browser = webdriver.Chrome(executable_path=path)
 
 
-    def login(self, url): #Step One, works?
+    def login(self, doc_url): #Step One, works?
         print('> Start execution login step <')
-        # url = 'https://uber.onelogin.com/login2'
         #Should use the below link but it dosen't work, so I'm using the above one untill I fix the process for image downloading
-        #url = 'https://partnertools.uberinternal.com/document/425b6991-0722-4925-9479-d97c3913c9a8'
+        url = 'https://partnertools.uberinternal.com/document/' + doc_url
         self.browser
         self.browser.get(url)
         time.sleep(7)
@@ -68,25 +67,41 @@ class HackerNewsSearchTest:
     
     def read_csv_docs(self):
         filePath = (r'C:\Users\Chris Villarroel\Documents\repo\costaRicaTaxResources\report\report.csv')
+        print('> reading the CSV file <')
         with open(filePath, "r" ) as theFile:
             reader = csv.DictReader(theFile, delimiter=',')
-            return reader
+
+            ordered_dict_from_csv = list(reader)
+        return ordered_dict_from_csv
+    
+    def get_url_doc(self, dataFrame):
+        dataForTesting = dict(dataFrame[0])
+        doc_url = dataForTesting['document_uuid']
+        return(doc_url)
         
 
     def process_image(self):
         print('processing image')
-        
+    
+    def scrapp_images(self, dataDict):
+        print('>  <')
 
-    def go_to_file(self, url):
+    def go_to_file(self, dataFrame):
         print('> Start to execution go to file step <')
-        # url = 'https://partnertools.uberinternal.com/document/425b6991-0722-4925-9479-d97c3913c9a8'
+        docUuid = self.get_url_doc(dataFrame)
+        url = 'https://partnertools.uberinternal.com/document/' + docUuid
         self.browser.get(url)
         self.set_cookies()
         self.browser.refresh()
         time.sleep(5)
-        self.browser.get(url)
-        time.sleep(5)
-        self.download_images()
+        for row in dataFrame:
+            print(row)
+            docUuid = row['document_uuid']
+            url = 'https://partnertools.uberinternal.com/document/' + docUuid
+            self.browser.get(url)
+            time.sleep(5)
+            self.download_images()
+            print('--------------------------------------------------------')
         print('> Finish to execution go to file step <')
 
     def tearDown(self):
@@ -94,12 +109,11 @@ class HackerNewsSearchTest:
         self.browser.quit()
 
     def orchestrator(self):
-        dataForTesting = self.read_csv_docs()
-        self.login('https://partnertools.uberinternal.com/document/425b6991-0722-4925-9479-d97c3913c9a8')
-        for row in dataForTesting:
-            docUuid = dataForTesting['document_uuid']
-            print(docUuid)
-        self.go_to_file('https://partnertools.uberinternal.com/document/425b6991-0722-4925-9479-d97c3913c9a8')
+        dataFrame = self.read_csv_docs()
+        docTest = self.get_url_doc(dataFrame)
+        self.login(docTest)
+        #till here it's done, I need to do the for and go search the documents in a loop
+        self.go_to_file(dataFrame)
         self.tearDown()
 
 
